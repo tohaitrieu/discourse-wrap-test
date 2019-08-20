@@ -1,7 +1,7 @@
 import { registerOption } from "pretty-text/pretty-text";
 
 registerOption((siteSettings, opts) => {
-  opts.features["bbcode-wrap"] = true;
+  opts.features["bbcode-wbc"] = true;
 });
 
 function WrapContentBlock(text) {
