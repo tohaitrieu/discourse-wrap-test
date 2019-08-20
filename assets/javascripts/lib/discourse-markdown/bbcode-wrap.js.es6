@@ -1,56 +1,52 @@
 import { registerOption } from "pretty-text/pretty-text";
 
 registerOption((siteSettings, opts) => {
-  opts.features["bbcode-wbc"] = true;
+  opts.features["bbcode-hideto"] = !!siteSettings.hideto_enabled;
 });
 
-function WrapContentBlock(text) {
+const CONTAINS_BLOCK_REGEX = /\n|<img|!\[[^\]]*\][(\[]/;
+
+function insertHideto(_, hideto) {
+  const element = CONTAINS_BLOCK_REGEX.test(hideto) ? "div" : "span";
+  return `<${element} class='hideto guest'>${hideto}</${element}>`;
+}
+
+function replaceHidetos(text) {
   text = text || "";
   while (
     text !==
     (text = text.replace(
-      /\[wcb=([^\]]+)\]((?:(?!\[wbc=[^\]]+\]|\[\/wbc\])[\S\s])*)\[\/wbc\]/gi,
-      function(match, p1, p2) {
-        return `<div class='donto ${p1}'>${p2}</span>`;
-      }
+      /\[hideto\]((?:(?!\[hideto\]|\[\/hideto\])[\S\s])*)\[\/hideto\]/gi,
+      insertHideto
     ))
   );
   return text;
 }
 
-export function setup(helper) {
-  helper.whiteList(["div[class]"]);
-  helper.whiteList({
-    custom(tag, name, value) {
-      if (tag === "div" && name === "class") {
-        return /^donto ?[a-zA-Z0-9]+$/.exec(value);
-      }
-    }
+function setupMarkdownIt(helper) {
+  helper.registerOptions((opts, siteSettings) => {
+    opts.features["bbcode-hideto"] = !!siteSettings.hideto_enabled;
   });
 
-  if (helper.markdownIt) {
-    helper.registerPlugin(md => {
-      const ruler = md.block.bbcode.ruler;
-
-      ruler.push("wbc", {
-        tag: "wbc",
-        wrap: function(token, endToken, tagInfo) {
-          token.type = "div_open";
-          token.tag = "div";
-          token.attrs = [
-            ["class", "donto " + tagInfo.attrs._default.trim()]
-          ];
-          token.content = "";
-          token.nesting = 1;
-
-          endToken.type = "div_close";
-          endToken.tag = "div";
-          endToken.nesting = -1;
-          endToken.content = "";
-        }
-      });
+  helper.registerPlugin(md => {
+    md.inline.bbcode.ruler.push("hideto", {
+      tag: "hideto",
+      wrap: "span.hideto"
     });
+
+    md.block.bbcode.ruler.push("hideto", {
+      tag: "hideto",
+      wrap: "div.hideto"
+    });
+  });
+}
+
+export function setup(helper) {
+  helper.whiteList(["span.hideto", "div.hideto"]);
+
+  if (helper.markdownIt) {
+    setupMarkdownIt(helper);
   } else {
-    helper.addPreProcessor(text => WrapContentBlock(text));
+    helper.addPreProcessor(replaceHidetos);
   }
 }
