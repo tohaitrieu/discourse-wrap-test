@@ -51,6 +51,6 @@ export function setup(helper) {
       });
     });
   } else {
-    helper.addPreProcessor(text => replaceFontBgColor(text));
+    helper.addPreProcessor(text => WrapContentBlock(text));
   }
 }
