@@ -1,23 +1,23 @@
 import { registerOption } from "pretty-text/pretty-text";
 
 registerOption((siteSettings, opts) => {
-  opts.features["bbcode-hideto"] = !!siteSettings.hideto_enabled;
+  opts.features["bbcode-wbc"] = !!siteSettings.wbc_enabled;
 });
 
 const CONTAINS_BLOCK_REGEX = /\n|<img|!\[[^\]]*\][(\[]/;
 
-function insertHideto(_, hideto) {
-  const element = CONTAINS_BLOCK_REGEX.test(hideto) ? "div" : "span";
-  return `<${element} class='hideto guest'>${hideto}</${element}>`;
+function insertWbc(_, wbc) {
+  const element = CONTAINS_BLOCK_REGEX.test(wbc) ? "div" : "span";
+  return `<${element} class='donto'>${wbc}</${element}>`;
 }
 
-function replaceHidetos(text) {
+function replaceWbcs(text) {
   text = text || "";
   while (
     text !==
     (text = text.replace(
-      /\[hideto\]((?:(?!\[hideto\]|\[\/hideto\])[\S\s])*)\[\/hideto\]/gi,
-      insertHideto
+      /\[wbc\]((?:(?!\[wbc\]|\[\/wbc\])[\S\s])*)\[\/wbc\]/gi,
+      insertWbc
     ))
   );
   return text;
@@ -25,28 +25,28 @@ function replaceHidetos(text) {
 
 function setupMarkdownIt(helper) {
   helper.registerOptions((opts, siteSettings) => {
-    opts.features["bbcode-hideto"] = !!siteSettings.hideto_enabled;
+    opts.features["bbcode-hideto"] = !!siteSettings.wbc_enabled;
   });
 
   helper.registerPlugin(md => {
-    md.inline.bbcode.ruler.push("hideto", {
-      tag: "hideto",
-      wrap: "span.hideto"
+    md.inline.bbcode.ruler.push("wbc", {
+      tag: "wbc",
+      wrap: "span.wbc"
     });
 
-    md.block.bbcode.ruler.push("hideto", {
-      tag: "hideto",
-      wrap: "div.hideto"
+    md.block.bbcode.ruler.push("wbc", {
+      tag: "wbc",
+      wrap: "div.wbc"
     });
   });
 }
 
 export function setup(helper) {
-  helper.whiteList(["span.hideto", "div.hideto"]);
+  helper.whiteList(["span.wbc", "div.wbc"]);
 
   if (helper.markdownIt) {
     setupMarkdownIt(helper);
   } else {
-    helper.addPreProcessor(replaceHidetos);
+    helper.addPreProcessor(replaceWbcs);
   }
 }
