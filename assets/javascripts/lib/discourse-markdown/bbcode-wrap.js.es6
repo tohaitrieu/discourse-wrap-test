@@ -30,7 +30,7 @@ export function setup(helper) {
 
   if (helper.markdownIt) {
     helper.registerPlugin(md => {
-      const ruler = md.block.bbcode.ruler;
+      const ruler = md.inline.bbcode.ruler;
 
       ruler.push("wbc", {
         tag: "wbc",
