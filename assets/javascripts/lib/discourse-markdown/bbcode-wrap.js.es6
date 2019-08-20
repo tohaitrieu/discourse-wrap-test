@@ -25,7 +25,7 @@ function replaceWbcs(text) {
 
 function setupMarkdownIt(helper) {
   helper.registerOptions((opts, siteSettings) => {
-    opts.features["bbcode-hideto"] = !!siteSettings.wbc_enabled;
+    opts.features["bbcode-wbc"] = !!siteSettings.wbc_enabled;
   });
 
   helper.registerPlugin(md => {
